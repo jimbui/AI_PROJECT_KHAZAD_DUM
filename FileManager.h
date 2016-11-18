@@ -2,25 +2,28 @@
 #define FILEMANAGER_H
 
 #include <string>
+#include <iostream>
 #include <fstream>
-#include "Dynamic2DArray.h"
+#include <vector>
+
+using namespace std;
 
 class FileManager
 {
 private:
 public:
-	static void SaveFile(string FileName, Dynamic2DArray<double> AIData)
+	static void SaveFile(string FileName, vector<vector<double>> AIData)
 	{
 		ofstream saveFile(FileName);
 
-		for (int i = 0; i < AIData.Length(0); i++)
+		for (int i = 0; i < AIData.size(); i++)
 		{
-			for (int j = 0; j < AIData.Length(1); j++)
+			for (int j = 0; j < AIData[i].size(); j++)
 			{
-				if (j < AIData.Length(1) - 1)
-					saveFile << AIData.GetValue(j, i) << " ";
+				if (j < AIData[i].size() - 1)
+					saveFile << AIData[i][j] << " ";
 				else
-					saveFile << AIData.GetValue(j, i);
+					saveFile << AIData[i][j];
 			}
 
 			saveFile << "\n";
@@ -29,13 +32,13 @@ public:
 		saveFile.close();
 	}
 
-	static Dynamic2DArray<double>* LoadFile(string FileName)
+	static vector<vector<double>>* LoadFile(string FileName)
 	{
 		ifstream loadFile(FileName);
 
 		if (loadFile.is_open())
 		{
-			Dynamic2DArray<double>* fData = new Dynamic2DArray<double>(-1, false, 1, 1);
+			vector<vector<double>>* fData = new vector<vector<double>>();
 			int input;
 
 			int xPos = 0;
@@ -43,7 +46,13 @@ public:
 
 			while (loadFile >> input)
 			{
-				fData->ModifyOrInsertAt(xPos, yPos, input);
+				if (yPos == 0)
+				{
+					vector<double>* v = new vector<double>();
+					fData->push_back(*v);
+				}
+
+				(*fData)[yPos].push_back(input);
 
 				char duh = loadFile.get();
 
