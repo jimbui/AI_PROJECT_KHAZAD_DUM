@@ -76,7 +76,7 @@ public:
 		}
 		else
 		{
-			cout << "We are unable to read the file." << endl;
+			// cout << "We are unable to read the file." << endl;
 			return NULL;
 		}
 	}
