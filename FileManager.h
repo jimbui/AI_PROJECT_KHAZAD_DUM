@@ -12,6 +12,7 @@ class FileManager
 {
 private:
 public:
+	// Save a file, given a certain vector
 	static void SaveFile(string FileName, vector<vector<double>> AIData)
 	{
 		ofstream saveFile(FileName);
@@ -32,6 +33,7 @@ public:
 		saveFile.close();
 	}
 
+	// Load a file, given a certain vector
 	static vector<vector<double>>* LoadFile(string FileName)
 	{
 		ifstream loadFile(FileName);
@@ -39,17 +41,21 @@ public:
 		if (loadFile.is_open())
 		{
 			vector<vector<double>>* fData = new vector<vector<double>>();
+
 			int input;
 
 			int xPos = 0;
 			int yPos = 0;
 
+			// This variable is used to ensure that the 2D vector is the proper length.
+			int yPosPrev = -1;
+
 			while (loadFile >> input)
 			{
-				if (yPos == 0)
+				if (yPosPrev < yPos)
 				{
-					vector<double>* v = new vector<double>();
-					fData->push_back(*v);
+					fData->push_back(vector<double>());
+					yPosPrev = yPos;
 				}
 
 				(*fData)[yPos].push_back(input);
