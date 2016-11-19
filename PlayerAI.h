@@ -5,6 +5,7 @@
 #include <vector>
 #include <string>
 #include <cmath>
+#include <time.h>
 
 using namespace std;
 
@@ -31,6 +32,7 @@ private:
 
 		vector<double> standingWin(19);
 		vector<double> standingLoss(19);
+		vector<double> standingNoLoss(19);  // Occurs if tie
 		vector<double> hittingWin(19);
 		vector<double> hittingLoss(19);
 		vector<double> hittingNoLoss(19);
@@ -38,6 +40,9 @@ private:
 		// Get table data
 		for (int i = 0; i < pastExperiences.size(); i++)
 		{
+			if (pastExperiences[i][1] == 0 && pastExperiences[i][2] == -1)
+				standingNoLoss[pastExperiences[i][0] - 2]++;
+
 			if (pastExperiences[i][1] == 0 && pastExperiences[i][2] == 0)
 				standingLoss[pastExperiences[i][0] - 2]++;
 
@@ -64,9 +69,9 @@ private:
 			knowledgeTable[i][1] = (hittingWin[i] > 0 || hittingLoss[i] > 0 || hittingNoLoss[i] > 0 ? 
 				(hittingNoLoss[i] + hittingWin[i]) / (hittingWin[i] + hittingLoss[i] + hittingNoLoss[i]) : 0);
 
-			// WIN_IF_STAND
-			knowledgeTable[i][2] = (standingWin[i] > 0 || standingLoss[i] > 0 ?
-				(standingWin[i]) / (standingWin[i] + standingLoss[i]) : 0);
+			// NOLOSS_IF_STAND
+			knowledgeTable[i][2] = (standingWin[i] > 0 || standingLoss[i] > 0 || standingNoLoss[i] > 0 ?
+				(standingWin[i] + standingNoLoss[i]) / (standingWin[i] + standingLoss[i] + standingNoLoss[i]) : 0);
 		}
 	}
 
@@ -77,6 +82,21 @@ public:
 		pastExperiences = PastExperiences;
 
 		ConvertExperienceToKnowledge();
+
+		// Initialize random number generator
+		srand(time(NULL));
+	}
+
+	// Decides whether to request a hit or to stand.
+	int MakeADecision(int HandValue)
+	{
+		return rand() % 2;
+	}
+
+	// Records the results of a move.  PrevCardValue:  2 - 20; Decision:  0 (Stand), 1 (Hit); Result:  0 (Loss), 1 (Win), -1 (NoLoss)
+	void RecordResults(int PrevCardValue, int Decision, int Result)
+	{
+
 	}
 
 	// Prints the knowledge table.  For debugging/demo purposes only
