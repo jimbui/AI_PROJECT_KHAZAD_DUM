@@ -16,3 +16,5 @@ GAME CLASS(ai / random / human)
 DEALER_AI CLASS
 
 PLAYER_AI CLASS
+
+https://docs.google.com/document/d/1ip_dbQZewCwOk5X9q3xoxRqpmbxD_CIEU36o899pD-U/edit
