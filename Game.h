@@ -98,6 +98,9 @@ class BlackJack_Game
 		bool victory_flag = false ;
 		int game_count = 1 ;
 		srand(time(NULL)) ;
+		int win = 0 ;
+		int lose = 0 ;
+		int draw = 0 ;
 
 		while (flag) // play the game as many times as needed.
 		{
@@ -146,6 +149,7 @@ class BlackJack_Game
 				{
 					if (play_mode == 1) std::cout << "           You got blackjack!  You win! \n\n" ;
 					else std::cout << "           The AI got blackjack!  AI wins! \n\n" ;
+					win++ ;
 					break ; // yeah!  it works!
 				}
 
@@ -197,13 +201,13 @@ class BlackJack_Game
 
 						if (rounds_to_play_int == 1)  // Display I/O if only one game is being played.
 						{
-							std::cout << "           Hit or stand? \n           ";
+							std::cout << "           Hit or stand? \n";
 							// std::this_thread::sleep_for(std::chrono::milliseconds(1000 + rand() % 2000));
 						}
 
 						p->MakeADecision(check_hand(player_hand, player_hand_count));
 						
-						if (rounds_to_play_int == 1)  // Display I/O if only one game is being played.
+						// if (rounds_to_play_int == 1)  // Display I/O if only one game is being played.
 						{
 							if (p->Decision() == 0)
 								std::cout << "           AI chose to stand. \n";
@@ -240,11 +244,12 @@ class BlackJack_Game
 					if (play_mode == 1) std::cout << "           You got blackjack!  You win! \n\n" ;
 					else
 					{
-						if (rounds_to_play_int == 1)
-							std::cout << "       The AI got blackjack!  AI wins! \n\n";
+						//if (rounds_to_play_int == 1)
+							std::cout << "           The AI got blackjack!  AI wins! \n\n";
 
 						p->RecordResults(1);  // AI records a hitting win.
 					}
+					win++ ;
 					break ; // yeah!  it works!
 				}
 
@@ -253,11 +258,12 @@ class BlackJack_Game
 					if (play_mode == 1) std::cout << "           You went over!  You lost! \n\n" ;
 					else
 					{
-						if (rounds_to_play_int == 1)
-							std::cout << "       The AI went over!  AI loses! \n\n";
+						//if (rounds_to_play_int == 1)
+							std::cout << "           The AI went over!  AI loses! \n\n";
 
 						p->RecordResults(0);  // AI records a hitting loss.
 					}
+					lose++ ;
 					break ; // yeah!  it works!
 				}
 
@@ -283,11 +289,12 @@ class BlackJack_Game
 					if (play_mode == 1) std::cout << "           Dealer went over!  You win! \n\n" ;
 					else
 					{
-						if (rounds_to_play_int == 1)
+						// if (rounds_to_play_int == 1)
 							std::cout << "           The dealer went over!  AI wins! \n\n";
 
 						p->RecordResults(1);
 					}
+					win++ ;
 					break ; // yeah!  it works!
 				}
 
@@ -301,7 +308,7 @@ class BlackJack_Game
 				if (check_hand(dealer_hand , dealer_hand_count) > check_hand(player_hand , player_hand_count)) // dealer has more.
 				{
 					std::cout << "           The dealer ended up having a higher hand.  Dealer wins. \n\n" ;
-
+					lose++ ;
 					if (play_mode == 0)
 						p->RecordResults(0);  // AI records a standing loss.
 
@@ -311,25 +318,29 @@ class BlackJack_Game
 				if (check_hand(dealer_hand , dealer_hand_count) < check_hand(player_hand , player_hand_count)) // player / AI has more.
 				{
 
-					if (play_mode == 1) std::cout << "           You ended up having a higher hand.  You win. \n" ;
+					if (play_mode == 1) std::cout << "           You ended up having a higher hand.  You win. \n\n" ;
 					else
 					{
-						if (rounds_to_play_int == 1)
-							std::cout << "           The AI ended up having a higher hand.  AI win. \n";
+						// if (rounds_to_play_int == 1)
+							std::cout << "           The AI ended up having a higher hand.  AI win. \n\n";
 
 						p->RecordResults(1);  // AI records a standing win.
 					}
+					win++ ;
 					break ;
 				}
 
 				else 
 				{
-					if (play_mode == 1 || rounds_to_play_int == 1)
+					if (play_mode == 1)
 						std::cout << "           It is a draw. \n\n" ;  // Print output if it should be shown.
 					
 					if (play_mode == 0)
+					{
 						p->RecordResults(-1);  // AI records standing but not losing.
-
+						std::cout << "           It is a draw. \n\n" ;
+					}
+					draw++ ;
 					break ;
 				}
 
@@ -352,7 +363,7 @@ class BlackJack_Game
 
 				if (user_response == 'y') 
 				{
-					game_count = 0 ;
+					game_count = 2 ;
 					std::cout << "\n    [+]    Starting the game. \n\n" ;
 				}
 
@@ -363,15 +374,19 @@ class BlackJack_Game
 				}
 			}
 			
-			p->PrintKnowledgeTable();
-			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+			// p->PrintKnowledgeTable();
+			// std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
-			if (game_count > rounds_to_play_int) break ; // delete_me.
+			if (play_mode != 1)
+			{
+				if (game_count > rounds_to_play_int) break ; // delete_me.
+				if (rounds_to_play_int == 1) break ;
+			}
 		}
 
 		// std::cout << "seeya bitch \n" ;
 
-		std::cout << "    [-]    Exiting the the HardRock. \n\n" ;
+		std::cout << "    [-]    Exiting the the HardRock with " << win << " wins, " << draw << " draws, and " << lose << " loses. \n\n" ;
 	}
 
 	void print_game_so_far(std::vector<int> player_array , int player_count , std::vector<int> dealer_array , int dealer_count)
