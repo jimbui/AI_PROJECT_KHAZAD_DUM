@@ -2,5 +2,5 @@
 
 build:
 	g++ -std=c++0x *.cpp *.h -o run_me.out
-run: a.out
+run: run_me.out
 	./run_me.out
