@@ -28,13 +28,13 @@ private:
 	int decision;
 
 	// Helper Methods ----------------------------------------------------------------------------------------
-	void ConvertExperienceToKnowledge()
+	void ConvertExperienceToKnowledge(int Buffer)
 	{
 		// Initialize table
 		knowledgeTable = vector<vector<double>>(19);
 
 		for (int i = 0; i < knowledgeTable.size(); i++)
-			knowledgeTable[i] = vector<double>(3);
+			knowledgeTable[i] = vector<double>(5);
 
 		vector<double> standingWin(19);
 		vector<double> standingLoss(19);
@@ -73,11 +73,19 @@ private:
 
 			// NOLOSS_IF_HIT
 			knowledgeTable[i][1] = (hittingWin[i] > 0 || hittingLoss[i] > 0 || hittingNoLoss[i] > 0 ? 
-				(hittingNoLoss[i] + hittingWin[i]) / (hittingWin[i] + hittingLoss[i] + hittingNoLoss[i]) : 1);
+				(hittingNoLoss[i] + hittingWin[i] + Buffer) / (hittingWin[i] + hittingLoss[i] + hittingNoLoss[i] + Buffer) : 1);
 
 			// NOLOSS_IF_STAND
 			knowledgeTable[i][2] = (standingWin[i] > 0 || standingLoss[i] > 0 || standingNoLoss[i] > 0 ?
-				(standingWin[i] + standingNoLoss[i]) / (standingWin[i] + standingLoss[i] + standingNoLoss[i]) : 0);
+				(standingWin[i] + standingNoLoss[i]) / (standingWin[i] + standingLoss[i] + standingNoLoss[i] + Buffer) : 0);
+
+			// ERR_HIT
+			knowledgeTable[i][3] = (hittingWin[i] + hittingLoss[i] + hittingNoLoss[i] + Buffer > 0 ? 
+				1 / (hittingWin[i] + hittingLoss[i] + hittingNoLoss[i] + Buffer) : 1);
+
+			// ERR_STAND
+			knowledgeTable[i][4] = (standingWin[i] + standingLoss[i] + standingNoLoss[i] + Buffer > 0 ? 
+				1 / (standingWin[i] + standingLoss[i] + standingNoLoss[i] + Buffer) : 1);
 		}
 	}
 
@@ -92,7 +100,7 @@ public:
 		if (pastExperiences == NULL)
 			pastExperiences = new vector<vector<double>>();
 
-		ConvertExperienceToKnowledge();
+		ConvertExperienceToKnowledge(0);
 
 		// Initialize random number generator
 		srand(time(NULL));
@@ -104,7 +112,33 @@ public:
 	int MakeADecision(int HandValue)
 	{
 		prevCardValue = HandValue;
-		decision = (knowledgeTable[HandValue - 2][1] > knowledgeTable[HandValue - 2][2] ? 1 : 0); // Insert AI function here.
+		
+		// decision = (knowledgeTable[HandValue - 2][1] > knowledgeTable[HandValue - 2][2] ? 1 : 0);
+
+		if (knowledgeTable[HandValue - 2][1] - knowledgeTable[HandValue - 2][3] * 2 >
+			knowledgeTable[HandValue - 2][2] + knowledgeTable[HandValue - 2][4] * 2)
+		{
+			// If the chance of a successful outcome for a hit minus its error is greater than 
+			// the chance of a successful outcome when standing plus its error
+			decision = 1;
+		}
+		else if (knowledgeTable[HandValue - 2][1] + knowledgeTable[HandValue - 2][3] * 2 <
+			knowledgeTable[HandValue - 2][2] - knowledgeTable[HandValue - 2][4] * 2)
+		{
+			// The opposite from the above
+			decision = 0;
+		}
+		else
+		{
+			// If the margin of error is too great, make a random decision.
+			if (knowledgeTable[HandValue - 2][1] > knowledgeTable[HandValue - 2][2])
+				decision = 1 - (rand() % 4 == 0);  // How to do a 1 / n...
+			else if (knowledgeTable[HandValue - 2][1] < knowledgeTable[HandValue - 2][2])
+				decision = (rand() % 4 == 0);
+			else
+				decision = rand() % 2;
+		}
+
 
 		return decision;
 	}
@@ -131,7 +165,7 @@ public:
 		knowledgeTable.clear();
 
 		// Creates a new knowledge table from experience.
-		ConvertExperienceToKnowledge();
+		ConvertExperienceToKnowledge(0);
 	}
 
 	// Overload --> Uses saved values of prevCardValue and decision to save results.
@@ -156,7 +190,7 @@ public:
 		knowledgeTable.clear();
 
 		// Creates a new knowledge table from experience.
-		ConvertExperienceToKnowledge();
+		ConvertExperienceToKnowledge(0);
 	}
 
 	// Use this to clear the AI of its past experiences and reset the file.
@@ -180,19 +214,19 @@ public:
 	// Prints the knowledge table.  For debugging/demo purposes only
 	void PrintKnowledgeTable()
 	{
-		cout << "----------------------- Knowledge -----------------------" << endl << endl;
-		cout << "\tVAL_CARDS\tNOLOSS_IF_HIT\tWIN_IF_STAND" << endl;
+		cout << "------------------------------------- Knowledge -------------------------------------" << endl << endl;
+		cout << "\tVAL_CARDS\tNOLOSS_IF_HIT\tNOLOSS_IF_STAND\tERR_HIT\t\tERR_STAND" << endl;
 
 		for (int i = 0; i < knowledgeTable.size(); i++)
 		{
 			cout << "\t";
 
 			for (int j = 0; j < knowledgeTable[i].size(); j++)
-				cout << round(knowledgeTable[i][j] * 100) / 100.0 << "\t\t";
+				cout << round(knowledgeTable[i][j] * 1000) / 1000.0 << "\t\t";
 
 			cout << endl;
 		}
-		cout << "---------------------------------------------------------" << endl << endl;
+		cout << "-------------------------------------------------------------------------------------" << endl << endl;
 	}
 };
 
