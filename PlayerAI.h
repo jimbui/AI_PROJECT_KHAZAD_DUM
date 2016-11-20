@@ -115,30 +115,48 @@ public:
 		
 		// decision = (knowledgeTable[HandValue - 2][1] > knowledgeTable[HandValue - 2][2] ? 1 : 0);
 
-		if (knowledgeTable[HandValue - 2][1] - knowledgeTable[HandValue - 2][3] * 2 >
-			knowledgeTable[HandValue - 2][2] + knowledgeTable[HandValue - 2][4] * 2)
+		//if (knowledgeTable[HandValue - 2][1] - knowledgeTable[HandValue - 2][3] * 2 >
+		//	knowledgeTable[HandValue - 2][2] + knowledgeTable[HandValue - 2][4] * 2)
+		//{
+		//	// If the chance of a successful outcome for a hit minus its error is greater than 
+		//	// the chance of a successful outcome when standing plus its error
+		//	decision = 1;
+		//}
+		//else if (knowledgeTable[HandValue - 2][1] + knowledgeTable[HandValue - 2][3] * 2 <
+		//	knowledgeTable[HandValue - 2][2] - knowledgeTable[HandValue - 2][4] * 2)
+		//{
+		//	// The opposite from the above
+		//	decision = 0;
+		//}
+		//else
+		//{
+		//	// If the margin of error is too great, make a random decision.
+		//	if (knowledgeTable[HandValue - 2][1] > knowledgeTable[HandValue - 2][2])
+		//		decision = 1 - (rand() % 4 == 0);  // How to do a 1 / n...
+		//	else if (knowledgeTable[HandValue - 2][1] < knowledgeTable[HandValue - 2][2])
+		//		decision = (rand() % 4 == 0);
+		//	else
+		//		decision = rand() % 2;
+		//}
+
+		if (knowledgeTable[HandValue - 2][1] > knowledgeTable[HandValue - 2][2])
 		{
-			// If the chance of a successful outcome for a hit minus its error is greater than 
-			// the chance of a successful outcome when standing plus its error
-			decision = 1;
+			// Chance of not losing when being hit is greater than chance of not losing when standing
+			int chance = (int)((knowledgeTable[HandValue - 2][1] - knowledgeTable[HandValue - 2][2]) /
+				(knowledgeTable[HandValue - 2][3] + knowledgeTable[HandValue - 2][4]));
+
+			decision = 1 - (rand() % (4 + chance) == 0);
 		}
-		else if (knowledgeTable[HandValue - 2][1] + knowledgeTable[HandValue - 2][3] * 2 <
-			knowledgeTable[HandValue - 2][2] - knowledgeTable[HandValue - 2][4] * 2)
+		else if (knowledgeTable[HandValue - 2][1] < knowledgeTable[HandValue - 2][2])
 		{
-			// The opposite from the above
-			decision = 0;
+			// Chance of not losing when being hit is less than chance of not losing when standing
+			int chance = (int)((knowledgeTable[HandValue - 2][2] - knowledgeTable[HandValue - 2][1]) /
+				(knowledgeTable[HandValue - 2][3] + knowledgeTable[HandValue - 2][4]));
+
+			decision = (rand() % (4 + chance) == 0);
 		}
 		else
-		{
-			// If the margin of error is too great, make a random decision.
-			if (knowledgeTable[HandValue - 2][1] > knowledgeTable[HandValue - 2][2])
-				decision = 1 - (rand() % 4 == 0);  // How to do a 1 / n...
-			else if (knowledgeTable[HandValue - 2][1] < knowledgeTable[HandValue - 2][2])
-				decision = (rand() % 4 == 0);
-			else
-				decision = rand() % 2;
-		}
-
+			decision = rand() % 2;
 
 		return decision;
 	}
