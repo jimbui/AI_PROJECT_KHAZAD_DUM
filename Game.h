@@ -21,6 +21,7 @@ class BlackJack_Game
 		char user_response ;
 		char rounds_to_play[] = "r" ;
 		int rounds_to_play_int = 1 ;
+		int remember = -1 ; 
 
 		PlayerAI* p = new PlayerAI("Phil");
 
@@ -84,10 +85,36 @@ class BlackJack_Game
 
 		}
 
-		else if (play_mode == 1) // user versus house.
+		if (play_mode == 0) // AI versus house.
 		{
-			// std::cout << "do somethin , throw some gang signs \n" ;
-			// std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+			while (remember != 0 && remember != 1)
+			{
+				std::cout << "    [+]    Should the AI remember these games?: \n\n" ;
+				std::cout << "           1.    Remember. \n" ;
+				std::cout << "           2.    Do not remember. \n\n" ;
+				std::cout << "                 " ;
+
+				std::cin >> user_response ;
+				while (std::cin.get() != '\n') ; // clear input buffer.
+				std::cout << " \n" ;
+				// clear_screen() ;
+
+				switch (user_response)
+				{
+					case '1':
+						std::cout << "    [+]    AI will remember (1). \n\n" ;
+						remember = 1 ;
+						break ;
+					case '2':
+						std::cout << "    [+]    AI will not remember (2). \n\n" ;
+						remember = 0 ;
+						break ;
+					default:
+						std::cout << "    [-]    Invalid entry. \n\n" ;
+						break ;
+				}
+			}
+
 		}
 
 		// starting the game.
@@ -228,7 +255,7 @@ class BlackJack_Game
 							if (check_hand(player_hand, player_hand_count) >= 21)
 								break;
 							else
-								p->RecordResults(-1);  // AI records a hit that was not a loss.
+								if (remember == 1) p->RecordResults(-1);  // AI records a hit that was not a loss.
 						}
 						else  // Stand
 							break;
@@ -247,7 +274,7 @@ class BlackJack_Game
 						//if (rounds_to_play_int == 1)
 							std::cout << "           The AI got blackjack!  AI wins! \n\n";
 
-						p->RecordResults(1);  // AI records a hitting win.
+						if (remember == 1) p->RecordResults(1);  // AI records a hitting win.
 					}
 					win++ ;
 					break ; // yeah!  it works!
@@ -261,7 +288,7 @@ class BlackJack_Game
 						//if (rounds_to_play_int == 1)
 							std::cout << "           The AI went over!  AI loses! \n\n";
 
-						p->RecordResults(0);  // AI records a hitting loss.
+						if (remember == 1) p->RecordResults(0);  // AI records a hitting loss.
 					}
 					lose++ ;
 					break ; // yeah!  it works!
@@ -292,7 +319,7 @@ class BlackJack_Game
 						// if (rounds_to_play_int == 1)
 							std::cout << "           The dealer went over!  AI wins! \n\n";
 
-						p->RecordResults(1);
+						if (remember == 1) p->RecordResults(1);
 					}
 					win++ ;
 					break ; // yeah!  it works!
@@ -310,7 +337,7 @@ class BlackJack_Game
 					std::cout << "           The dealer ended up having a higher hand.  Dealer wins. \n\n" ;
 					lose++ ;
 					if (play_mode == 0)
-						p->RecordResults(0);  // AI records a standing loss.
+						if (remember == 1) p->RecordResults(0);  // AI records a standing loss.
 
 					break ;
 				}
@@ -324,7 +351,7 @@ class BlackJack_Game
 						// if (rounds_to_play_int == 1)
 							std::cout << "           The AI ended up having a higher hand.  AI win. \n\n";
 
-						p->RecordResults(1);  // AI records a standing win.
+						if (remember == 1) p->RecordResults(1);  // AI records a standing win.
 					}
 					win++ ;
 					break ;
@@ -337,7 +364,7 @@ class BlackJack_Game
 					
 					if (play_mode == 0)
 					{
-						p->RecordResults(-1);  // AI records standing but not losing.
+						if (remember == 1) p->RecordResults(-1);  // AI records standing but not losing.
 						std::cout << "           It is a draw. \n\n" ;
 					}
 					draw++ ;
